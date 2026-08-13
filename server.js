@@ -5,10 +5,26 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const mongoose = require('mongoose');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'khdamli-secret-key-2024';
+
+// ========== EMAIL CONFIG ==========
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+let transporter;
+if (EMAIL_USER && EMAIL_PASS) {
+    transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: EMAIL_USER,
+            pass: EMAIL_PASS
+        }
+    });
+}
 
 // ========== CONNEXION MONGODB ATLAS ==========
 const MONGO_URI = process.env.MONGODB_URI;
@@ -69,6 +85,28 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+// ========== ROUTES PAGES HTML ==========
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'register.html'));
+});
+
+app.get('/index.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/forgot-password.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'forgot-password.html'));
+});
+
+app.get('/dashboard.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+// ========== MIDDLEWARE AUTH ==========
 const authMiddleware = async (req, res, next) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ message: 'Token manquant' });
@@ -112,15 +150,44 @@ app.post('/api/login', async (req, res) => {
     });
 });
 
+// Mot de passe oublié - Envoyer OTP par EMAIL
 app.post('/api/forgot-password', async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'Email non trouve' });
 
+    if (!transporter) {
+        return res.status(500).json({ message: 'Service email non configure' });
+    }
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await Otp.deleteMany({ email });
     await new Otp({ email, otp, expires: Date.now() + 600000 }).save();
-    res.json({ message: 'OTP envoye', otp });
+
+    // Envoyer l'email
+    try {
+        await transporter.sendMail({
+            from: '"Khdamli" <' + EMAIL_USER + '>',
+            to: email,
+            subject: 'Code de verification Khdamli',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+                    <h2 style="color: #1a5f9e;">Khdamli - Verification</h2>
+                    <p>Bonjour,</p>
+                    <p>Votre code de verification (OTP) est :</p>
+                    <div style="background: #f0f0f0; padding: 20px; text-align: center; font-size: 28px; font-weight: bold; letter-spacing: 5px; border-radius: 8px;">
+                        ${otp}
+                    </div>
+                    <p>Ce code expire dans <strong>10 minutes</strong>.</p>
+                    <p style="color: #999; font-size: 12px;">Si vous n'avez pas demande ce code, ignorez cet email.</p>
+                </div>
+            `
+        });
+        res.json({ message: 'OTP envoye a votre email' });
+    } catch (err) {
+        console.error('Erreur email:', err);
+        res.status(500).json({ message: 'Erreur lors de l\'envoi de l\'email' });
+    }
 });
 
 app.post('/api/verify-otp', async (req, res) => {
