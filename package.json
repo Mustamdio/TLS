@@ -15,7 +15,6 @@
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
     "uuid": "^9.0.0",
-    "mongoose": "^8.0.0",
-    "dotenv": "^16.3.1"
+    "mongoose": "^8.0.0"
   }
 }
