@@ -5,6 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khdamli - Inscription</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .conditions-link {
+            color: var(--primary);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .conditions-link:hover {
+            color: var(--primary-dark);
+        }
+        .conditions-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .conditions-modal.show {
+            display: flex;
+        }
+        .conditions-box {
+            background: white;
+            border-radius: var(--border-radius);
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 35px;
+            animation: slideUp 0.3s ease;
+        }
+        .conditions-box h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .conditions-box p {
+            color: var(--dark);
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .conditions-box .btn {
+            margin-top: 20px;
+            width: auto;
+            padding: 12px 40px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
@@ -47,7 +101,9 @@
                 <div class="form-group">
                     <div class="checkbox-group">
                         <input type="checkbox" id="conditions" required>
-                        <label for="conditions">J'accepte les conditions d'inscription et la politique de confidentialité de Khdamli</label>
+                        <label for="conditions">
+                            J'accepte les <span class="conditions-link" onclick="openConditions(event)">conditions d'inscription</span> et la politique de confidentialité de Khdamli
+                        </label>
                     </div>
                 </div>
 
@@ -60,8 +116,53 @@
         </div>
     </div>
 
+    <!-- Modal Conditions -->
+    <div class="conditions-modal" id="conditionsModal">
+        <div class="conditions-box">
+            <h2>📜 Conditions d'inscription</h2>
+            <p><strong>Article 1 – Objet</strong><br>
+            Les présentes conditions régissent l'utilisation du site Khdamli, plateforme de gestion de rendez-vous pour les demandes de visa TLScontact. En vous inscrivant, vous acceptez de respecter l'ensemble des dispositions énoncées ci-après.</p>
+
+            <p><strong>Article 2 – Accès au service</strong><br>
+            L'accès au service est réservé aux personnes majeures disposant d'une capacité juridique. L'utilisateur s'engage à fournir des informations exactes, complètes et à jour lors de son inscription. Toute fausse déclaration pourra entraîner la suspension immédiate du compte.</p>
+
+            <p><strong>Article 3 – Protection des données</strong><br>
+            Khdamli s'engage à protéger les données personnelles de ses utilisateurs conformément à la réglementation en vigueur. Les informations collectées (nom, prénom, email, téléphone, numéro de passeport) sont strictement confidentielles et utilisées uniquement dans le cadre du traitement de votre demande de rendez-vous.</p>
+
+            <p><strong>Article 4 – Responsabilité</strong><br>
+            Khdamli agit en tant qu'intermédiaire de mise en relation avec les centres TLScontact. Nous ne sommes pas responsables des décisions de refus de visa prises par les autorités consulaires. L'utilisateur est seul responsable de l'exactitude des documents fournis.</p>
+
+            <p><strong>Article 5 – Paiement</strong><br>
+            Les frais de service Khdamli sont distincts des frais de visa et de rendez-vous TLScontact. En cas d'obtention du rendez-vous, l'utilisateur dispose d'un délai de 48 heures pour régler les frais correspondants, faute de quoi le rendez-vous sera automatiquement annulé.</p>
+
+            <p><strong>Article 6 – Modification et résiliation</strong><br>
+            Khdamli se réserve le droit de modifier les présentes conditions à tout moment. L'utilisateur sera informé de toute modification substantielle par email. En cas de non-respect des conditions, Khdamli se réserve le droit de supprimer le compte sans préavis.</p>
+
+            <p><strong>Article 7 – Contact</strong><br>
+            Pour toute question relative aux conditions d'inscription, vous pouvez nous contacter à l'adresse suivante : support@khdamli.ma</p>
+
+            <button class="btn btn-primary" onclick="closeConditions()">Retour</button>
+        </div>
+    </div>
+
     <script src="js/app.js"></script>
     <script>
+        function openConditions(e) {
+            e.preventDefault();
+            document.getElementById('conditionsModal').classList.add('show');
+        }
+
+        function closeConditions() {
+            document.getElementById('conditionsModal').classList.remove('show');
+        }
+
+        // Fermer en cliquant en dehors
+        document.getElementById('conditionsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConditions();
+            }
+        });
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
