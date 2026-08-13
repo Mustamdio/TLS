@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khdamli - Inscription</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="card">
+            <div class="card-header">
+                <div class="logo">K</div>
+                <h1>Créer un compte</h1>
+                <p>Rejoignez Khdamli pour gérer vos demandes de visa</p>
+            </div>
+
+            <div class="alert alert-danger" id="errorAlert"></div>
+            <div class="alert alert-success" id="successAlert"></div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="nom">Nom <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="nom" placeholder="Votre nom" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="prenom">Prénom <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="prenom" placeholder="Votre prénom" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telephone">Numéro de téléphone <span class="required">*</span></label>
+                    <input type="tel" class="form-control" id="telephone" placeholder="06 XX XX XX XX" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Adresse email <span class="required">*</span></label>
+                    <input type="email" class="form-control" id="email" placeholder="votre@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe <span class="required">*</span></label>
+                    <input type="password" class="form-control" id="password" placeholder="Minimum 6 caractères" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="conditions" required>
+                        <label for="conditions">J'accepte les conditions d'inscription et la politique de confidentialité de Khdamli</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">S'enregistrer</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <p>Déjà inscrit ? <a href="index.html" class="link">Se connecter</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nom = document.getElementById('nom').value;
+            const prenom = document.getElementById('prenom').value;
+            const telephone = document.getElementById('telephone').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nom, prenom, telephone, email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showAlert('successAlert', 'Inscription réussie ! Redirection vers la connexion...');
+                    setTimeout(() => window.location.href = 'index.html', 2000);
+                } else {
+                    showAlert('errorAlert', data.message || 'Erreur lors de l\'inscription');
+                }
+            } catch (err) {
+                showAlert('errorAlert', 'Erreur serveur');
+            }
+        });
+    </script>
+</body>
+</html>
