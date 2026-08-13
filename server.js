@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'khdamli-secret-key-2024';
 
 // ========== CONNEXION MONGODB ATLAS ==========
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
 if (!MONGO_URI) {
     console.error('❌ MONGO_URI manquant ! Ajoute-le dans les variables d\'environnement Render.');
